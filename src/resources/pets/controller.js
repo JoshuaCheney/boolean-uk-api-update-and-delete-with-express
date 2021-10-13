@@ -61,9 +61,47 @@ function updatePetById(req, res) {
   .catch(console.error)
 }
 
+function patchPetById (req, res) {
+  const id = req.params.id
+  const petToPatch = req.body
+
+  let sqlTemplate = `
+  UPDATE pets SET
+  `;
+
+  const sqlParams = []
+
+  let i = 1
+  for (const key in petToPatch) {
+    sqlTemplate += `${key} = $${i},`
+    sqlParams.push(petToPatch[key])
+    i++
+  }
+
+  sqlParams.push(id)
+
+  sqlTemplate = sqlTemplate.slice(0, sqlTemplate.length - 1)
+  sqlTemplate += `WHERE id = $${i} RETURNING *`
+  console.log(sqlParams)
+  console.log(sqlTemplate)
+
+  db.query(sqlTemplate, sqlParams)
+    .then((result) => res.json({data: result.rows[0]}))
+    .catch(console.error)
+}
+
+function deleteOneById(req, res) {
+  const id = req.params.id
+
+  const deleteInSQL = `
+  DELETE FROM
+  `
+}
+
 module.exports = {
   createOne,
   getAll,
   getOneById,
-  updatePetById
+  updatePetById,
+  patchPetById
 };
